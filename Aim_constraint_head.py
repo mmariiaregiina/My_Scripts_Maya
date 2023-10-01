@@ -30,7 +30,7 @@ cmds.setAttr ("LOC_UPShape.localScaleZ", 12)
 cmds.move(0, 50, 0, loc_up, wd=1, r=1, os=1)
 cmds.move(0, 0, 40, loc_front, wd=1, r=1, os=1)
 
-# Constrain aim:
+# Constraint aim:
 cmds.parentConstraint(selection, loc_up, mo=1)
 cmds.parentConstraint(selection, loc_front, mo=1)
 
@@ -45,7 +45,7 @@ cmds.delete("LOC_FRONT_parentConstraint1")
 
 cmds.aimConstraint(loc_front, selection, worldUpType='object', worldUpObject="LOC_UP", aimVector=[0, 0, 1], upVector=[0, 1, 0])
 
-# Put in group and freeze:
+# Put in a group and freeze:
 cmds.group(loc_up, loc_front, n="my_sys_for_head")
 cmds.setAttr("my_sys_for_head.tx", lock=1)
 cmds.setAttr("my_sys_for_head.ty", lock=1)
