@@ -1,0 +1,17 @@
+"""
+The script simultaneusly deletes empty and muted layers
+Phyton
+by @mmariiaregiina
+"""
+
+import maya.cmds as cmds
+import maya.mel as mel
+
+
+mel.eval("deleteEmptyAnimLayers();")
+
+
+a = cmds.ls(type='animLayer')
+for i in a:
+    if cmds.animLayer(i, q=True, mute=True): 
+        cmds.delete (i)
