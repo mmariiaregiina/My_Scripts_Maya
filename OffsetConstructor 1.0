@@ -1,6 +1,6 @@
 """ 
 The script mainly helps with constraining objects to hands, but doesn`t exclude any other cases for applying.  
-Firstly, choose main object then dependent one.
+Firstly, choose main object, then dependent one.
 Phyton 
 by @mmariiaregiina 
 """ 
@@ -29,8 +29,8 @@ def CreatePropsOffset():
         cmds.inViewMessage(amg='ERROR: <hl>Firstly, choose main object, then dependent one.\n Выбирете сначала главный, потом зависимый объект.</hl>', pos='midCenter', fade=1)     
     loc_outside = cmds.spaceLocator(n='LOC_OUT_'+ selection [0]) 
     loc_inside = cmds.spaceLocator(n='LOC_IN_'+ selection [1]) 
-    cmds.parent(loc_inside, loc_outside, mo=0) 
-    cmds.parentConstraint (selection [0],loc_outside) 
+    cmds.parent(loc_inside, loc_outside) 
+    cmds.parentConstraint (selection [0],loc_outside, mo=0) 
     cmds.parentConstraint (loc_inside, selection [1]) 
     cmds.makeIdentity(loc_inside, apply=1, t=1, r=1, s=1) 
        
