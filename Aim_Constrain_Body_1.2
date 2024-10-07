@@ -1,0 +1,123 @@
+"""
+"Aim_Constrain_Body_1.2"
+The script creates UP and FRONT LOCs for aim constrain 
+mostly applying for cleaning up body rotation using translates 
+Phyton
+by @mmariiaregiina
+"""
+
+import maya.cmds as cmds
+import maya.mel as mel  
+ 
+selection = cmds.ls(sl=1)  
+if len(selection) == 0: 
+    cmds.inViewMessage(amg='ERROR: <hl>you have to select an object</hl>', pos='midCenter', fade=1) 
+
+def CreateUpFrontLocs():  
+    # Creating UP/FRONT/WORLD locators in a pivot using Match transform: 
+    loc_up = cmds.spaceLocator(n='LOC_UP_'+ ctrl)  
+    loc_front = cmds.spaceLocator(n='LOC_FRONT_'+ ctrl) 
+    world_loc = cmds.spaceLocator(n='LOC_WORLD_'+ ctrl) 
+    cmds.matchTransform(loc_up, ctrl, pos=1, rot=1, scl=1) 
+    cmds.matchTransform(loc_front, ctrl, pos=1, rot=1, scl=1) 
+    cmds.matchTransform(world_loc, ctrl, pos=1, rot=1, scl=1) 
+     
+    cmds.color(loc_up, rgb=(149, 0, 179)) 
+    cmds.color(loc_front, rgb=(149, 0, 179)) 
+     
+    name_up = cmds.listRelatives(loc_up, shapes=1, fullPath=1) 
+    name_front = cmds.listRelatives(loc_front, shapes=1, fullPath=1) 
+    name_world = cmds.listRelatives(world_loc, shapes=1, fullPath=1)
+    
+    cmds.setAttr (name_up[0] + ".localScaleX", 12) 
+    cmds.setAttr (name_up[0] + ".localScaleY", 12) 
+    cmds.setAttr (name_up[0] + ".localScaleX", 12) 
+     
+    cmds.setAttr (name_front[0] + ".localScaleX", 12) 
+    cmds.setAttr (name_front[0] + ".localScaleY", 12) 
+    cmds.setAttr (name_front[0] + ".localScaleZ", 12) 
+    
+    cmds.setAttr (world_loc[0] + ".rotateX", 0)
+    cmds.setAttr (world_loc[0] + ".rotateY", 0)
+    cmds.setAttr (world_loc[0] + ".rotateZ", 0)
+    
+    # Moving UP and FRONT locators: 
+    cmds.move(0, 50, 0, loc_up, wd=1, r=1, os=1) 
+    cmds.move(0, 0, 40, loc_front, wd=1, r=1, os=1) 
+    
+    # Hierarchy parent UP and FRONT locs in WORLD loc: 
+    cmds.parent (name_up[0], name_world[0])
+    cmds.parent (name_front[0], name_world[0])
+    
+    # Constrain aim: 
+    constr_up = cmds.parentConstraint(ctrl, loc_up, mo=1) 
+    constr_front =cmds.parentConstraint(ctrl, loc_front, mo=1) 
+    constr_world =cmds.pointConstraint(ctrl, world_loc, mo=1) 
+     
+    minTime = cmds.playbackOptions(query=1, minTime=1) 
+    maxTime = cmds.playbackOptions(query=1, maxTime=1) 
+     
+    cmds.bakeResults(loc_up, t=(minTime, maxTime)) 
+    cmds.bakeResults(loc_front, t=(minTime, maxTime)) 
+    cmds.bakeResults(world_loc, t=(minTime, maxTime))
+     
+    cmds.delete(constr_up) 
+    cmds.delete(constr_front) 
+    cmds.delete(constr_world) 
+    
+    cmds.selectKey(world_loc[0] + ".translateX")
+    mel.eval("GraphEditorLockChannel()")  
+    cmds.selectKey(world_loc[0] + ".translateY")
+    mel.eval("GraphEditorLockChannel()")
+    cmds.selectKey(world_loc[0] + ".translateZ")
+    mel.eval("GraphEditorLockChannel()")
+    
+    cmds.setAttr(world_loc [0] + ".tx", lock=1)  
+    cmds.setAttr(world_loc [0] + ".ty", lock=1)  
+    cmds.setAttr(world_loc [0] + ".tz", lock=1)
+     
+    # Lock rotates in GraphEditor and ChannelBox for UP amd FRONT locks:   
+    
+    cmds.selectKey(loc_up[0] + ".rotateX")
+    mel.eval("GraphEditorLockChannel()")  
+    cmds.selectKey(loc_up[0] + ".rotateY")
+    mel.eval("GraphEditorLockChannel()")
+    cmds.selectKey(loc_up[0] + ".rotateZ")
+    mel.eval("GraphEditorLockChannel()")  
+   
+    cmds.selectKey(loc_front[0] + ".rotateX")
+    mel.eval("GraphEditorLockChannel()")  
+    cmds.selectKey(loc_front[0] + ".rotateY")
+    mel.eval("GraphEditorLockChannel()")
+    cmds.selectKey(loc_front[0] + ".rotateZ")
+    mel.eval("GraphEditorLockChannel()") 
+    
+    cmds.setAttr(loc_up[0] + ".rx", lock=1)  
+    cmds.setAttr(loc_up[0] + ".ry", lock=1)  
+    cmds.setAttr(loc_up[0] + ".rz", lock=1)
+    
+    cmds.setAttr(loc_front[0] + ".rx", lock=1)  
+    cmds.setAttr(loc_front[0] + ".ry", lock=1)  
+    cmds.setAttr(loc_front[0] + ".rz", lock=1)
+    
+    name_loc = cmds.ls(loc_up, long=1)
+    
+    cmds.aimConstraint(loc_front, ctrl, worldUpType='object', worldUpObject=name_loc[0], aimVector=[0, 0, 1], upVector=[0, 1, 0]) 
+     
+    # Put the locs in a group and freeze: 
+    grp = cmds.group(world_loc, n='my_sys_for_' + ctrl)  
+    grp_n = cmds.ls(grp, long = 1)
+        
+    cmds.setAttr(grp_n [0] + ".tx", lock=1)  
+    cmds.setAttr(grp_n [0] + ".ty", lock=1)  
+    cmds.setAttr(grp_n [0] + ".tz", lock=1)  
+    cmds.setAttr(grp_n [0] + ".rx", lock=1)  
+    cmds.setAttr(grp_n [0] + ".ry", lock=1)  
+    cmds.setAttr(grp_n [0] + ".rz", lock=1)  
+    cmds.setAttr(grp_n [0] + ".sx", lock=1)  
+    cmds.setAttr(grp_n [0] + ".sy", lock=1) 
+    cmds.setAttr(grp_n [0] + ".sz", lock=1)  
+
+    
+for ctrl in selection: 
+     CreateUpFrontLocs()
