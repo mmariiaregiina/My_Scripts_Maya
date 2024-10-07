@@ -1,0 +1,51 @@
+""" 
+The script mainly helps with constraining objects to hands, but doesn`t exclude any other cases for applying.  
+Phyton 
+by @mmariiaregiina 
+""" 
+import maya.cmds as cmds 
+ 
+if cmds.window("MyWindowID", exists=1):  
+      cmds.deleteUI("MyWindowID") 
+ 
+if cmds.windowPref("MyWindowID", exists=1): 
+    cmds.windowPref("MyWindowID", remove=1) 
+  
+cmds.window("MyWindowID", title="OffsetConstructor 1.0", width=350, height=210, toolbox=1) 
+ 
+largeL = cmds.columnLayout(adjustableColumn=1, rowSpacing=10, columnAttach=('both', 20), w=100, h=100, bgc=(0.365, 0.365, 0.365)) 
+middleL = cmds.columnLayout(adjustableColumn=1, rowSpacing=10, columnAttach=('both', 10), w=100, h=110, p=largeL, bgc=(0.365, 0.365, 0.365)) 
+text = cmds.text(align='left', label="1. Констрейнит (парент без офсета) один объект \n к другому посредством системы из двух локаторов,\n например, чтобы приконстрейнить пропс к руке.\n\n 2. Аналогичен 1, но сохраняет анимацию зависимого\n объекта, которая перепекается на локатор в мире\n главного.\n", parent=middleL, fn="boldLabelFont") 
+ 
+mainLayout = cmds.columnLayout(adjustableColumn=1, rowSpacing=20, columnAttach=('both', 30), bgc=(0.365, 0.365, 0.365), p=largeL) 
+ 
+cmds.button(label="1. OBJ_TO...", p=mainLayout, c="CreatePropsOffset()", bgc=(0.796, 0.910, 1), ann="To parent an object to another one with parent constraint without maintain offset, f. e. use it to parent props to hands.") 
+cmds.button(label="2. OBJ_TO...WITH ANIM", p=mainLayout, c="CreatePropsOffset_withanim()", bgc=(0.796, 0.910, 1), ann="The same as 1, but with preserving an object`s animation.")  
+ 
+def CreatePropsOffset():  
+    selection = cmds.ls(sl=1)  
+    if len(selection) == 0:  
+        cmds.inViewMessage(amg='ERROR: <hl>you have to select an object</hl>', pos='midCenter', fade=1)     
+    loc_outside = cmds.spaceLocator(n='LOC_OUT_'+ selection [0]) 
+    loc_inside = cmds.spaceLocator(n='LOC_IN_'+ selection [1]) 
+    cmds.parent(loc_inside, loc_outside, mo=0) 
+    cmds.parentConstraint (selection [0],loc_outside) 
+    cmds.parentConstraint (loc_inside, selection [1]) 
+    cmds.makeIdentity(loc_inside, apply=1, t=1, r=1, s=1) 
+       
+def CreatePropsOffset_withanim():  
+    selection = cmds.ls(sl=1)  
+    if len(selection) == 0:  
+        cmds.inViewMessage(amg='ERROR: <hl>you have to select an object</hl>', pos='midCenter', fade=1)     
+    loc_outside_anim = cmds.spaceLocator(n='ANIM_LOC_OUT_'+ selection [0]) 
+    loc_inside_anim = cmds.spaceLocator(n='ANIM_LOC_IN_'+ selection [1]) 
+    cmds.parent(loc_inside_anim, loc_outside_anim) 
+    cmds.parentConstraint (selection [0],loc_outside_anim, mo=1) 
+    constr = cmds.parentConstraint (selection [1], loc_inside_anim) 
+    minTime = cmds.playbackOptions(query=1, minTime=1)   
+    maxTime = cmds.playbackOptions(query=1, maxTime=1)   
+    cmds.bakeResults(loc_inside_anim, t=(minTime, maxTime))  
+    cmds.delete(constr)   
+    cmds.parentConstraint (loc_inside_anim,selection [1])         
+     
+cmds.showWindow("MyWindowID")
