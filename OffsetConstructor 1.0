@@ -1,5 +1,6 @@
 """ 
 The script mainly helps with constraining objects to hands, but doesn`t exclude any other cases for applying.  
+Firstly, choose main object then dependent one.
 Phyton 
 by @mmariiaregiina 
 """ 
@@ -24,8 +25,8 @@ cmds.button(label="2. OBJ_TO...WITH ANIM", p=mainLayout, c="CreatePropsOffset_wi
  
 def CreatePropsOffset():  
     selection = cmds.ls(sl=1)  
-    if len(selection) == 0:  
-        cmds.inViewMessage(amg='ERROR: <hl>you have to select an object</hl>', pos='midCenter', fade=1)     
+    if len(selection) == 0 or len(selection) == 1:  
+        cmds.inViewMessage(amg='ERROR: <hl>Firstly, choose main object, then dependent one.\n Выбирете сначала главный, потом зависимый объект.</hl>', pos='midCenter', fade=1)     
     loc_outside = cmds.spaceLocator(n='LOC_OUT_'+ selection [0]) 
     loc_inside = cmds.spaceLocator(n='LOC_IN_'+ selection [1]) 
     cmds.parent(loc_inside, loc_outside, mo=0) 
@@ -35,8 +36,8 @@ def CreatePropsOffset():
        
 def CreatePropsOffset_withanim():  
     selection = cmds.ls(sl=1)  
-    if len(selection) == 0:  
-        cmds.inViewMessage(amg='ERROR: <hl>you have to select an object</hl>', pos='midCenter', fade=1)     
+    if len(selection) == 0 or len(selection) == 1:  
+        cmds.inViewMessage(amg='ERROR: <hl>Firstly, choose main object, then dependent one.\n Выбирете сначала главный, потом зависимый объект.</hl>', pos='midCenter', fade=1)     
     loc_outside_anim = cmds.spaceLocator(n='ANIM_LOC_OUT_'+ selection [0]) 
     loc_inside_anim = cmds.spaceLocator(n='ANIM_LOC_IN_'+ selection [1]) 
     cmds.parent(loc_inside_anim, loc_outside_anim) 
