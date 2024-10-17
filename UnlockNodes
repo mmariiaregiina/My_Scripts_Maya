@@ -1,0 +1,10 @@
+""" 
+The scripts helps when you need to delete something in a scene, but receve the message: "Cannot delete locked node..."
+Just select appropriate object in outliner, apply the code and delete the object
+Phyton 
+by @mmariiaregiina 
+""" 
+import maya.cmds as cmds 
+sel = cmds.ls()
+for a in sel:
+    cmds.lockNode(a, lock=0)
