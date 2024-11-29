@@ -1,0 +1,74 @@
+""" The scripts helps to convert five spines` ctrl into 3 for mgear rigs.
+Select hip and 4 spines` ctrls and apply.
+Phyton by @mmariiaregiina 
+""" 
+import maya.cmds as cmds
+import maya.mel as mel  
+ 
+sel = cmds.ls(sl=1)  
+if len(sel) == 0: 
+    cmds.inViewMessage(amg='ERROR: <hl>you have to select an object</hl>', pos='midCenter', fade=1) 
+#cmds.CreateEmptyGroup(n='backSystem')
+    
+for ctrl in sel:   
+      
+    loc_spine = cmds.spaceLocator(n='LOC_S_'+ ctrl)  
+    cmds.matchTransform(loc_spine, ctrl, pos=1, rot=1, scl=1) 
+        
+    constr_ctrl = cmds.parentConstraint(ctrl, loc_spine, mo=1) 
+        
+    minTime = cmds.playbackOptions(query=1, minTime=1) 
+    maxTime = cmds.playbackOptions(query=1, maxTime=1) 
+         
+    cmds.bakeResults(loc_spine, t=(minTime, maxTime)) 
+        
+    cmds.delete(constr_ctrl)
+        
+    constr_spine = cmds.parentConstraint(loc_spine, ctrl, mo=1) 
+        
+loc_spesial_spine_1_top = cmds.spaceLocator(n='LOC_SP_1_top')  
+cmds.matchTransform(loc_spesial_spine_1_top, sel[1], pos=1, rot=1, scl=1) 
+loc_spesial_spine_2_top = cmds.spaceLocator(n='LOC_SP_2_top')  
+cmds.matchTransform(loc_spesial_spine_2_top, sel[3], pos=1, rot=1, scl=1) 
+
+loc_spesial_spine_1_inside = cmds.spaceLocator(n='LOC_SP_1_inside')  
+cmds.matchTransform(loc_spesial_spine_1_inside, sel[1], pos=1, rot=1, scl=1) 
+loc_spesial_spine_2_inside = cmds.spaceLocator(n='LOC_SP_2_inside')  
+cmds.matchTransform(loc_spesial_spine_2_inside, sel[3], pos=1, rot=1, scl=1)    
+ 
+cmds.parent('LOC_SP_1_inside', 'LOC_SP_1_top')
+cmds.parent('LOC_SP_2_inside', 'LOC_SP_2_top')
+
+cmds.parentConstraint('LOC_S_chr_*_rig:body_C0_ctl', loc_spesial_spine_1_top, mo=1, w=0.6)
+cmds.parentConstraint('LOC_S_chr_*_rig:spine_C0_fk1_ctl', loc_spesial_spine_1_top, mo=1, w=0.4)
+cmds.setAttr ("LOC_SP_1_top_parentConstraint1.interpType", 2)
+
+cmds.parentConstraint('LOC_S_chr_*_rig:spine_C0_fk1_ctl', loc_spesial_spine_2_top, mo=1, w=0.6)
+cmds.parentConstraint('LOC_S_chr_*_rig:spine_C0_fk3_ctl', loc_spesial_spine_2_top, mo=1, w=0.4)
+cmds.setAttr ("LOC_SP_2_top_parentConstraint1.interpType", 2)
+
+a = cmds.parentConstraint(sel[1], loc_spesial_spine_1_inside) 
+b = cmds.parentConstraint(sel[3], loc_spesial_spine_2_inside)
+
+cmds.bakeResults(loc_spesial_spine_1_inside, t=(minTime, maxTime)) 
+cmds.delete(a)
+
+cmds.bakeResults(loc_spesial_spine_2_inside, t=(minTime, maxTime)) 
+cmds.delete(b)
+
+cmds.orientConstraint(loc_spesial_spine_1_inside, 'LOC_S_chr_*_rig:spine_C0_fk0_ctl', mo=1)
+cmds.orientConstraint(loc_spesial_spine_2_inside, 'LOC_S_chr_*_rig:spine_C0_fk2_ctl', mo=1)
+
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk0_ctl'+ ".rx", lock=1)
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk0_ctl'+ ".ry", lock=1)
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk0_ctl'+ ".rz", lock=1)
+
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk2_ctl'+ ".rx", lock=1)
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk2_ctl'+ ".ry", lock=1)
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk2_ctl'+ ".rz", lock=1)
+
+cmds.setAttr('LOC_SP_1_top'+ ".visibility", 0)
+cmds.setAttr('LOC_SP_2_top'+ ".visibility", 0)
+
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk0_ctl'+ ".visibility", 0)
+cmds.setAttr('LOC_S_chr_*_rig:spine_C0_fk2_ctl'+ ".visibility", 0)
