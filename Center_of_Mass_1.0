@@ -1,0 +1,84 @@
+"""The script creates a LOC that shows aproximated center of mass 
+Phyton
+by @mmariiaregiina
+"""
+
+import maya.cmds as cmds 
+
+if cmds.window("MyWindowID", exists=1):  
+      cmds.deleteUI("MyWindowID") 
+ 
+if cmds.windowPref("MyWindowID", exists=1): 
+    cmds.windowPref("MyWindowID", remove=1) 
+  
+cmds.window("MyWindowID", title="CENTER_OF_MASS", width=300, height=160, toolbox=1) 
+ 
+mainLayout = cmds.columnLayout(adjustableColumn=1, rowSpacing=20, columnAttach=('both', 30), bgc=(0.365, 0.365, 0.365), columnAlign="center") 
+
+cmds.separator(height=20, style='none', p=mainLayout)
+
+cmds.button(label="Create_LOCS", p=mainLayout, c="Create_LOCS()", bgc=(0.796, 0.910, 1), ann="Creates locs in the center of selected objects")  
+
+cmds.button(label="Parent_Constraint", p=mainLayout, c="Parent_Constraint()", bgc=(0.796, 0.910, 1), ann="Creates Parent Cnstraint of exact weights according names") 
+
+def Create_LOCS():
+    sel = cmds.ls(sl=1)
+    if len(sel) == 0:  
+        print ('You have to choose a ctrl')
+        cmds.inViewMessage(amg='ERROR: <hl>YOU HAVE TO CHOOSE A CTRL</hl>', pos='midCenter', fade=1)
+    else:
+        for ctrl in sel:
+            locs = cmds.spaceLocator(p=(0, 0, 0), name=ctrl+"_LOC")
+            cmds.setAttr(locs[0] + ".localScaleX", 12)  
+            cmds.setAttr(locs[0] + ".localScaleY", 12)  
+            cmds.setAttr(locs[0] + ".localScaleZ", 12)  
+           
+            loc_shape = cmds.listRelatives(locs[0], shapes=1)[0]
+            cmds.setAttr(loc_shape + ".overrideEnabled", 1)
+            cmds.setAttr(loc_shape + ".overrideColor", 17) 
+    
+            cmds.matchTransform(locs, ctrl, pos=1, rot=1)  
+            if "R" in locs[0]:
+                cmds.setAttr(locs[0] + ".scaleX", -1)
+                
+def Parent_Constraint(): 
+    sel = cmds.ls(sl=1)
+    target_obj = sel[-1]
+                    
+    for obj in sel:
+        if "Shoulder" in obj:
+            cmds.parentConstraint(obj, target_obj, w=0.03)
+    
+    for obj in sel:
+        if "Elbow" in obj:
+            cmds.parentConstraint(obj, target_obj, w=0.02)
+            
+    for obj in sel:
+        if "Wrist" in obj:
+            cmds.parentConstraint(obj, target_obj, w=0.01)
+            
+    for obj in sel:
+        if "Hip" in obj:
+            cmds.parentConstraint(obj, target_obj, w=0.12)
+            
+    for obj in sel:
+        if "Knee" in obj:
+            cmds.parentConstraint(obj, target_obj, w=0.05)
+            
+    for obj in sel:
+        if "Ankle" in obj:
+            cmds.parentConstraint(obj, target_obj, w=0.02)
+            
+    for obj in sel:
+        if "Head" in obj:
+            cmds.parentConstraint(obj, target_obj, w=0.07)
+            
+    for obj in sel:
+       if "Spine" in obj:
+           cmds.parentConstraint(obj, target_obj, w=0.43)
+                             
+cmds.showWindow("MyWindowID")
+
+
+ 
+    
